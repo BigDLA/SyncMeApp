@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncMeApp", "SyncMeApp.csproj", "{9DA70F7E-F2F4-4926-9DD5-D95BDE19C4DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncMeApp", "SyncMeApp.csproj", "{9DA70F7E-F2F4-4926-9DD5-D95BDE19C4DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncMeAppLibrary", "..\SyncMeAppLibrary\SyncMeAppLibrary.csproj", "{107F64D8-B638-4981-B642-0ED47F8E4032}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UT.SyncMeApp", "..\UT.SyncMeApp\UT.SyncMeApp.csproj", "{338A9C08-C5F2-4803-A602-003DECE35560}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{9DA70F7E-F2F4-4926-9DD5-D95BDE19C4DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DA70F7E-F2F4-4926-9DD5-D95BDE19C4DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DA70F7E-F2F4-4926-9DD5-D95BDE19C4DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{107F64D8-B638-4981-B642-0ED47F8E4032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{107F64D8-B638-4981-B642-0ED47F8E4032}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{107F64D8-B638-4981-B642-0ED47F8E4032}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{107F64D8-B638-4981-B642-0ED47F8E4032}.Release|Any CPU.Build.0 = Release|Any CPU
+		{338A9C08-C5F2-4803-A602-003DECE35560}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{338A9C08-C5F2-4803-A602-003DECE35560}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{338A9C08-C5F2-4803-A602-003DECE35560}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{338A9C08-C5F2-4803-A602-003DECE35560}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

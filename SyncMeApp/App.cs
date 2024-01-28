@@ -1,4 +1,6 @@
-﻿
+﻿using System;
+using System.Text.RegularExpressions;
+using SyncMeAppLibrary;
 
 namespace SyncMeApp
 {
@@ -13,17 +15,11 @@ namespace SyncMeApp
 
         public void Run(string[] args)
         {
-            //string lang = "en";
+            var inputParameters = new InputParameters(args);
+            Utils.ListInputParameters(inputParameters); // pro debug - smazat
 
-            /*for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i].ToLower().StartsWith("lang="))
-                {
-                    lang = args[i].Substring(5);
-                    break;
-                }
-            }*/
 
+           
             //string message = _messages.Greeting(lang);
 
             //Console.WriteLine(message);
