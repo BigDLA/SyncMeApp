@@ -1,5 +1,4 @@
 using SyncMeAppLibrary;
-using static SyncMeAppLibrary.InputParameters;
 
 namespace UT.SyncMeApp.TestProjects
 {

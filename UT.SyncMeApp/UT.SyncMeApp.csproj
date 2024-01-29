@@ -17,12 +17,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Resources\TestFolders\TestSource\" />
     <Folder Include="Utils\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SyncMeAppLibrary\SyncMeAppLibrary.csproj" />
     <ProjectReference Include="..\SyncMeApp\SyncMeApp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\TestFolders\TestSource\subfolder\testpicture.bmp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TestFolders\TestSource\testtxt.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

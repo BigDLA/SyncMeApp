@@ -1,18 +1,20 @@
 ﻿using System.Security.Cryptography;
 
-namespace SyncMeAppLibrary
+namespace SyncMeAppLibrary.Model
 {
     public class FolderItem
     {
 
-        public  string Name { get; set; }
-        public  string Path { get; set; }
-        public  Stream Stream { get; set; }
+        public string Name { get; set; }
+        public string Path { get; set; }
+        public Type ItemType { get; set; }
+        public Stream Stream { get; set; }
 
-        public FolderItem(FileInfo fileInfo) 
+        public FolderItem(FileInfo fileInfo)
         {
             Name = fileInfo.Name;
             Path = fileInfo.FullName;
+            ItemType = fileInfo.Attributes.GetType();
             Stream = File.OpenRead(Path);
         }
 
@@ -32,7 +34,7 @@ namespace SyncMeAppLibrary
                     files.Append(new FolderItem(info));
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 // TO-DO: zapiš do konzole
                 throw;
@@ -41,24 +43,23 @@ namespace SyncMeAppLibrary
             return files;
         }
 
-        // <nazev souboru, hash>
-        public static Dictionary<string, byte[]> GetFilesHash(FolderItem[] files)
+        public static List <byte[]> GetFilesHash(FolderItem[] files)
         {
-            var hashes = new Dictionary<string, byte[]>();
+            var hashes = new List<byte[]>();
 
             foreach (FolderItem file in files)
             {
-                using (var md5 = MD5.Create()) 
+                using (var md5 = MD5.Create())
                 {
-                    hashes[file.Name] = md5.ComputeHash(file.Stream);
+                    hashes.Add(md5.ComputeHash(file.Stream));
                 }
             }
             return hashes;
         }
 
-
-        //metodu na výpočet zvlášť -> načítat soubory jen jednou 
-        //var hashes = new Dictionary<string, string>();
-
+        public static bool CompareHashes(byte[] sourceHash, byte[] replicaHash)
+        {
+            return sourceHash.SequenceEqual(replicaHash);
+        }
     }
 }

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using SyncMeAppLibrary;
+﻿using SyncMeAppLibrary;
+using SyncMeAppLibrary.BL;
+using SyncMeAppLibrary.Model;
 
 namespace SyncMeApp
 {
@@ -18,8 +18,9 @@ namespace SyncMeApp
             var inputParameters = new InputParameters(args);
             Utils.ListInputParameters(inputParameters); // pro debug - smazat
 
+            SyncLogic.ReplicateSourceFolder(inputParameters);
 
-           
+
             //string message = _messages.Greeting(lang);
 
             //Console.WriteLine(message);

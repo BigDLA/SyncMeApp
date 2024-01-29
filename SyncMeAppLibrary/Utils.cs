@@ -1,4 +1,6 @@
-﻿namespace SyncMeAppLibrary
+﻿using SyncMeAppLibrary.Model;
+
+namespace SyncMeAppLibrary
 {
     public class Utils
     {
