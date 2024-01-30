@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using NLog;
+using System.Security.Cryptography;
 
 namespace SyncMeAppLibrary.Model
 {
@@ -20,46 +21,41 @@ namespace SyncMeAppLibrary.Model
 
 
         // To-Do: optimalizace na množství souborů? ať nedržím v paměti tisíce souborů
+
+
         public static FolderItem[] LoadAllFiles(string folderPath)
         {
+            if (!Directory.Exists(folderPath))
+                throw new Exception($"Folder {folderPath} not found!");
+
             var files = new FolderItem[] { };
+            DirectoryInfo folderInfo = new DirectoryInfo(folderPath);
+            FileInfo[] fileInfo = folderInfo.GetFiles("*", SearchOption.AllDirectories);
 
-            try
+            foreach (FileInfo info in fileInfo)
             {
-                DirectoryInfo folderInfo = new DirectoryInfo(folderPath);
-                FileInfo[] fileInfo = folderInfo.GetFiles("*", SearchOption.AllDirectories);
-
-                foreach (FileInfo info in fileInfo)
-                {
-                    files.Append(new FolderItem(info));
-                }
+                files.Append(new FolderItem(info));
             }
-            catch (Exception ex)
-            {
-                // TO-DO: zapiš do konzole
-                throw;
-            }
-
             return files;
         }
 
-        public static List <byte[]> GetFilesHash(FolderItem[] files)
-        {
-            var hashes = new List<byte[]>();
+    public static List<byte[]> GetFilesHash(FolderItem[] files)
+    {
+        var hashes = new List<byte[]>();
 
-            foreach (FolderItem file in files)
+        foreach (FolderItem file in files)
+        {
+            using (var md5 = MD5.Create())
             {
-                using (var md5 = MD5.Create())
-                {
-                    hashes.Add(md5.ComputeHash(file.Stream));
-                }
+                hashes.Add(md5.ComputeHash(file.Stream));
             }
-            return hashes;
         }
-
-        public static bool CompareHashes(byte[] sourceHash, byte[] replicaHash)
-        {
-            return sourceHash.SequenceEqual(replicaHash);
-        }
+        return hashes;
     }
+
+    public static bool CompareHashes(byte[] sourceHash, byte[] replicaHash)
+    {
+        return sourceHash.SequenceEqual(replicaHash);
+    }
+}
 }

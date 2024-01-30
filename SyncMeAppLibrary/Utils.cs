@@ -1,4 +1,5 @@
-﻿using SyncMeAppLibrary.Model;
+﻿using NLog;
+using SyncMeAppLibrary.Model;
 
 namespace SyncMeAppLibrary
 {
@@ -14,7 +15,7 @@ namespace SyncMeAppLibrary
                     return args[i].Substring(searchParameter.Length);
                 }
             }
-            throw new Exception($"Parameter {parameterName} not found!");
+            throw new Exception($"Unknown input parameter {parameterName}!");
         }
 
         // testovací metoda - smazat
@@ -22,10 +23,41 @@ namespace SyncMeAppLibrary
         {
             Console.WriteLine($"SourceFolder = {inputParameters.SourceFolder}"); 
             Console.WriteLine($"ReplicaFolder = {inputParameters.ReplicaFolder}");
-            Console.WriteLine($"LogFolder = {inputParameters.LogFolder}");
+            Console.WriteLine($"LogFile = {inputParameters.LogFile}");
             Console.WriteLine($"Interval = {inputParameters.Interval}");
             Console.WriteLine($"TimeUnit = {inputParameters.TimeUnit}");
             Console.WriteLine($"Force = {inputParameters.Force}");
+        }
+
+        public static LogLevel ConvertStringToLogLevel(string logLevel)
+        {
+            switch (logLevel)
+            {
+                case "Debug":
+                    return LogLevel.Debug;
+                case "Info":
+                    return LogLevel.Info;
+                case "Warn":
+                    return LogLevel.Warn;
+                case "Error":
+                    return LogLevel.Error;
+                case "Fatal":
+                    return LogLevel.Fatal;
+                case "Off":
+                    return LogLevel.Off;
+                default:
+                    throw new Exception($"Unknown LogLevel parameter {logLevel}!");
+            }
+
+        }
+
+        public static bool ConfirmationDialog(string message)
+        {
+            Console.WriteLine(message);
+            if (Console.ReadKey().Key == ConsoleKey.Y)
+                return true;
+            
+            return false;
         }
     }
 }

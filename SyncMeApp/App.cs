@@ -16,14 +16,12 @@ namespace SyncMeApp
         public void Run(string[] args)
         {
             var inputParameters = new InputParameters(args);
+            var log = Logging.ConfigureLogging(inputParameters); // Initialize and set logging configuration
+            
             Utils.ListInputParameters(inputParameters); // pro debug - smazat
-
-            SyncLogic.ReplicateSourceFolder(inputParameters);
-
-
-            //string message = _messages.Greeting(lang);
-
-            //Console.WriteLine(message);
+            
+            SyncLogic.ReplicateSourceFolder(inputParameters, log);
+            log.Info(Logging.msgSyncSuccesfull);
         }
     }
 }
