@@ -3,16 +3,16 @@
 namespace UT.SyncMeApp.TestProjects
 {
     [TestClass]
-    public class FolderItemTests
+    public class DirectoryItemTests
     {
-        /*private const string testSourceFolder = "Resources\\TestFolders\\";
+        /*private const string testSourceDirectory = "Resources\\TestDirectorys\\";
 
-        [DeploymentItem(testSourceFolder)]
+        [DeploymentItem(testSourceDirectory)]
         [TestMethod]
         public void LoadAllFilesTest()
         {
             var path = $"{TestContext.DeploymentDirectory}\\TestSource";
-            FolderItem[] files = FolderItem.LoadAllFiles(path);
+            DirectoryItem[] files = DirectoryItem.LoadAllFiles(path);
 
         }*/
     }

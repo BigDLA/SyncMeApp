@@ -21,9 +21,8 @@ namespace SyncMeAppLibrary.Model
             return LogManager.GetCurrentClassLogger();
         }
 
-        public const string msgSyncCheck = "Checking that folders are synchronized.";
+        public const string msgSyncCheck = "Checking that directories are synchronized.";
         public const string msgSyncSuccesfull = "Synchronization finished succesfully!";
-        public const string msgDeleteConfirmation = "Target folder is not empty! Delete files in target directory? Y/N:";
         public const string msgActionCanceledByUser = "Action canceld by user!";
     }
 }

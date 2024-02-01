@@ -5,24 +5,32 @@ namespace SyncMeAppLibrary.Model
 {
     public class InputParameters
     {
-        public enum consoleParameters { sourcefolder, replicafolder, logFile, interval, timeunit, force, fileloglevel, consoleloglevel };
+        public enum consoleParameters { sourcedirectory, replicadirectory, logFile, interval, timeunit, force, fileloglevel, consoleloglevel, askdeleteconfirmation };
 
-        public string SourceFolder { get; set; }
-        public string ReplicaFolder { get; set; }
+        public string SourceDirectory { get; set; }
+        public string ReplicaDirectory { get; set; }
         public string LogFile { get; set; }
         public long Interval { get; set; }
-        public string TimeUnit { get; set; }
+        public string? TimeUnit { get; set; }
         public bool Force { get; set; }
         public string FileLogLevel { get; set; }
         public string ConsoleLogLevel { get; set; }
+        public bool AskDeleteConfirmation { get; set; }
 
 
         public InputParameters(string[] args)
         {
-            SourceFolder = Utils.GetSubstring(args, consoleParameters.sourcefolder.ToString()).Replace("'", string.Empty);
-            ReplicaFolder = Utils.GetSubstring(args, consoleParameters.replicafolder.ToString()).Replace("'", string.Empty);
+            SourceDirectory = Utils.GetSubstring(args, consoleParameters.sourcedirectory.ToString()).Replace("'", string.Empty);
+            ReplicaDirectory = Utils.GetSubstring(args, consoleParameters.replicadirectory.ToString()).Replace("'", string.Empty);
             LogFile = Utils.GetSubstring(args, consoleParameters.logFile.ToString()).Replace("'", string.Empty);
-            Interval = long.Parse(Utils.GetSubstring(args, consoleParameters.interval.ToString()));
+
+            Interval = 0;
+            string interval = Utils.GetSubstring(args, consoleParameters.interval.ToString());
+            if (!string.IsNullOrEmpty(interval))
+            {
+                Interval = long.Parse(interval);
+            }
+
             TimeUnit = Utils.GetSubstring(args, consoleParameters.timeunit.ToString());
 
             Force = false;
@@ -44,6 +52,13 @@ namespace SyncMeAppLibrary.Model
             if (!string.IsNullOrEmpty(consoleLogLevel))
             {
                 ConsoleLogLevel = consoleLogLevel;
+            }
+
+            AskDeleteConfirmation = true;
+            string askDeleteConfirmation = Utils.GetSubstring(args, consoleParameters.askdeleteconfirmation.ToString());
+            if (!string.IsNullOrEmpty(askDeleteConfirmation))
+            {
+                AskDeleteConfirmation = bool.Parse(askDeleteConfirmation);
             }
         }
 

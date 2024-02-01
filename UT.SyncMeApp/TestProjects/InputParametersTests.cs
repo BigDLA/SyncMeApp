@@ -5,8 +5,8 @@ namespace UT.SyncMeApp.TestProjects
     [TestClass]
     public class InputParametersTests
     {
-        [DataRow("testfolder", "'c:\\somefolder\\anotherfolder'")]
-        [DataRow("TestFolder", "'c:\\somefolder\\anotherfolder'")] // tests case insensitivity of input parameter
+        [DataRow("testdirectory", "'c:\\somedirectory\\anotherdirectory'")]
+        [DataRow("TestDirectory", "'c:\\somedirectory\\anotherdirectory'")] // tests case insensitivity of input parameter
         [TestMethod]
         public void GetSubstringTest(string parameterName, string expectedValue)
         {

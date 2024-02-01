@@ -1,6 +1,7 @@
 ﻿using SyncMeAppLibrary;
 using SyncMeAppLibrary.BL;
 using SyncMeAppLibrary.Model;
+using System.Diagnostics;
 
 namespace SyncMeApp
 {
@@ -15,12 +16,13 @@ namespace SyncMeApp
 
         public void Run(string[] args)
         {
+            Debugger.Launch();
             var inputParameters = new InputParameters(args);
             var log = Logging.ConfigureLogging(inputParameters); // Initialize and set logging configuration
             
             Utils.ListInputParameters(inputParameters); // pro debug - smazat
             
-            SyncLogic.ReplicateSourceFolder(inputParameters, log);
+            SyncLogic.ReplicateSourceDirectory(inputParameters, log);
             log.Info(Logging.msgSyncSuccesfull);
         }
     }

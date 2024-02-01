@@ -2,6 +2,7 @@
 using SyncMeAppLibrary.Model;
 using System;
 using System.Diagnostics;
+using System.IO;
 
 namespace SyncMeAppLibrary.BL
 {
@@ -9,37 +10,56 @@ namespace SyncMeAppLibrary.BL
 
     public class SyncLogic
     {
-        public static void ReplicateSourceFolder(InputParameters inputParameters, Logger log)
+        public static void ReplicateSourceDirectory(InputParameters inputParameters, Logger log)
         {
             try
             {
-                log.Info($"Loading source files from {inputParameters.SourceFolder}");
-                FolderItem[] sourceFolderFiles = FolderItem.LoadAllFiles(inputParameters.SourceFolder);
-                
-                log.Info($"Loading files in target folder {inputParameters.ReplicaFolder}");
-                FolderItem[] replicaFolderFiles = FolderItem.LoadAllFiles(inputParameters.ReplicaFolder);
+                log.Info($"Starting to synchronize target directory {inputParameters.ReplicaDirectory} with source directory {inputParameters.SourceDirectory}.");
+                DirectoryInfo[] sourceDirWithSubdirectories = GetDirAndSubdirectories(inputParameters.SourceDirectory);
+                if (sourceDirWithSubdirectories.Length == 0 ) 
+                    throw new Exception($"Source directory {inputParameters.SourceDirectory} not found!");
 
-                if (sourceFolderFiles.Length == 0)
+                DirectoryInfo[] replicaDirWithSubdirectories = GetDirAndSubdirectories(inputParameters.ReplicaDirectory);
+
+                // Case when source directory is empty
+                if (sourceDirWithSubdirectories.Length == 1 && sourceDirWithSubdirectories[0].GetFiles("*", SearchOption.TopDirectoryOnly).Length == 0)
                 {
-                    log.Warn($"Source folder {inputParameters.SourceFolder} is empty!");
+                    log.Warn($"Source directory {inputParameters.SourceDirectory} is empty!");
 
-                    if (replicaFolderFiles.Length > 0)
+                    // replicaDirWithSubdirectories.Length > 1 means there are subfolders. If there are files or subfolders we need to delete them.
+                    if (replicaDirWithSubdirectories.Length > 1 || replicaDirWithSubdirectories[0].GetFiles("*", SearchOption.TopDirectoryOnly).Length > 0)
                     {
-                        DeleteFiles(replicaFolderFiles, inputParameters.ReplicaFolder);
-                        log.Info(Logging.msgSyncCheck);
-                        CheckReplicaFolder(sourceFolderFiles, inputParameters);
-                        return;
+                        if (!Utils.ConfirmationDialog($"Target directory is not empty. Delete all files and directories in {inputParameters.ReplicaDirectory}? Y/N:", showDialog: inputParameters.AskDeleteConfirmation))
+                            throw new Exception(Logging.msgActionCanceledByUser);
+
+                        DeleteAllFilesAndFolders(replicaDirWithSubdirectories, log);
+                        
+                    }
+                    log.Info("Both directories are now empty.");
+                    return;
+                }
+
+                // Case when replica directory is empty and source is not.
+                if (replicaDirWithSubdirectories.Length <= 1 && replicaDirWithSubdirectories[0].GetFiles("*", SearchOption.TopDirectoryOnly).Length == 0)
+                {
+                    log.Info($"Target directory {inputParameters.ReplicaDirectory} is empty. Proceeding to synchronize with directory {inputParameters.SourceDirectory}.");
+                    foreach (DirectoryInfo sourceDirectory in sourceDirWithSubdirectories)
+                    {
+                        ReplicateDirectory(sourceDirectory, inputParameters, log);
                     }
                 }
 
-                if (replicaFolderFiles.Length == 0)
+                //*
+
+                /*
+                foreach (DirectoryInfo sourceDirectory in sourceDirWithSubdirectories) 
                 {
-                    log.Info("No files have been found in target folder. Proceeding with copying files from source folder.");
-                    CopyFiles(sourceFolderFiles, inputParameters.ReplicaFolder);
-                    log.Info(Logging.msgSyncCheck);
-                    CheckReplicaFolder(sourceFolderFiles, inputParameters);
-                    return;               
+                    ReplicateDirectory(sourceDirectory, inputParameters, log);
                 }
+                
+                */
+
+
             }
             catch (Exception ex) 
             {
@@ -48,63 +68,91 @@ namespace SyncMeAppLibrary.BL
             }
         }
 
-        private static void CheckReplicaFolder(FolderItem[] sourceFolderFiles, InputParameters inputParameters)
+        private static void DeleteAllFilesAndFolders(DirectoryInfo[] directories, Logger log)
         {
-            FolderItem[] replicaFolderFiles = FolderItem.LoadAllFiles(inputParameters.SourceFolder);
-            foreach (FolderItem item in sourceFolderFiles)
+            // Iterating trough directories in reverse order to remove subdirectories first.
+            for (int i = directories.Length - 1; i>=0; i--)
             {
-                if (CompareFiles(item, replicaFolderFiles))
+                if (!directories[i].Exists)
+                    throw new DirectoryNotFoundException();
+
+                log.Info($"Deleting files in {directories[i].FullName}");
+                FileInfo[] files = directories[i].GetFiles("*", SearchOption.TopDirectoryOnly);
+                DeleteFiles(files);
+                log.Info($"Files deleted. Deleting directory {directories[i].FullName} itself.");
+                
+                // Delete subdirectories
+                if (i > 0)
+                    Directory.Delete(directories[i].FullName);
+            }
+        }
+
+        private static void ReplicateDirectory(DirectoryInfo directory, InputParameters inputParameters, Logger log)
+        {
+            if (!directory.Exists)
+                throw new Exception($"Source directory {directory.FullName} not found!");
+
+            string targetDirectory = directory.FullName.Replace(inputParameters.SourceDirectory, inputParameters.ReplicaDirectory);
+            if (!Directory.Exists(targetDirectory))
+            {
+                log.Info($"Creating target directory {targetDirectory} because it doesn´t exist.");
+                Directory.CreateDirectory(targetDirectory);
+            }
+            FileInfo[] fileInfo = directory.GetFiles("*", SearchOption.TopDirectoryOnly);
+            CopyFiles(fileInfo, targetDirectory, log);
+
+        }
+
+        private static DirectoryInfo[] GetDirAndSubdirectories(string directoryPath)
+        {
+            var directories =  new List<DirectoryInfo>() {new DirectoryInfo(directoryPath) };
+            foreach (DirectoryInfo subdirectoryInfo in directories[0].GetDirectories("*", SearchOption.AllDirectories))
+            {
+                directories.Add(subdirectoryInfo);
+            }
+            return directories.ToArray();
+        }
+
+       /* private static void CheckReplicaDirectory(DirectoryItem[] sourceDirectoryFiles, InputParameters inputParameters)
+        {
+            DirectoryItem[] replicaDirectoryFiles = DirectoryItem.LoadAllFiles(inputParameters.SourceDirectory);
+            foreach (DirectoryItem item in sourceDirectoryFiles)
+            {
+                if (CompareFiles(item, replicaDirectoryFiles))
                 {
                     break;
                 }
                 else 
                 {
-                    throw new Exception($"File validation error! Item {item.Path} not found in replica folder ({inputParameters.ReplicaFolder}).");
+                    throw new Exception($"File validation error! Item {item.Path} not found in replica directory ({inputParameters.ReplicaDirectory}).");
                 }
             }
             
-        }
-
-        private static bool CompareFiles(FolderItem item, FolderItem[] replicaFolderFiles)
+        }*/
+       /*
+        private static bool CompareFiles(DirectoryItem item, DirectoryItem[] replicaDirectoryFiles)
         {
-            byte[] sourceItemHash = FolderItem.GetFilesHash([item])[0];
-            List<byte[]> replicaItemsHashes = FolderItem.GetFilesHash(replicaFolderFiles);
+            byte[] sourceItemHash = DirectoryItem.GetFilesHash([item])[0];
+            List<byte[]> replicaItemsHashes = DirectoryItem.GetFilesHash(replicaDirectoryFiles);
             return replicaItemsHashes.Contains(sourceItemHash);
         }
-
-        private static void CopyFiles(FolderItem[] sourceFiles, string replicaFolder)
+       */
+        private static void CopyFiles(FileInfo[] files, string targetDirectory, Logger log)
         {
-            if (!Directory.Exists(replicaFolder))
-                throw new Exception($"Target folder {replicaFolder} not found!");  // TO-DO?:Udělat custom exeptiony? abych neopakoval
-
-            foreach (FolderItem item in sourceFiles)
+            foreach (FileInfo file in files)
             {
-                File.Copy(item.Path, $"{replicaFolder}");
-
-                //TO-DO?: možná bude potřeba zvlášť copy pro složky
-
+                string targetFileFullName = Path.Combine(targetDirectory, file.Name);
+                File.Copy(file.FullName, targetFileFullName);
+                log.Info($"File {file.FullName} copied to {targetFileFullName}.");
             }
         }
 
-        private static void DeleteFiles(FolderItem[] replicaFolderFiles, string replicaFolder)
+        private static void DeleteFiles(FileInfo[] files)
         {
-            if (Utils.ConfirmationDialog(Logging.msgDeleteConfirmation))
+            foreach (FileInfo file in files)
             {
-                if (Directory.Exists(replicaFolder))
-                {
-                    foreach (FolderItem item in replicaFolderFiles)
-                    {
-                        File.Delete(item.Path);
-
-                        //TO-DO?: možná bude potřeba zvlášť delete pro složky
-                    }
-                }
-                else
-                {
-                    throw new Exception($"Target folder {replicaFolder} not found!");
-                }
+                File.Delete(file.FullName);
             }
-            throw new Exception(Logging.msgActionCanceledByUser);
         }
     }
 }

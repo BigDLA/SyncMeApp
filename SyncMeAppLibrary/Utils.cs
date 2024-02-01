@@ -1,5 +1,6 @@
 ﻿using NLog;
 using SyncMeAppLibrary.Model;
+using static SyncMeAppLibrary.Model.InputParameters;
 
 namespace SyncMeAppLibrary
 {
@@ -8,21 +9,26 @@ namespace SyncMeAppLibrary
         public static string GetSubstring(string[] args, string parameterName)
         {
             var searchParameter = $"{parameterName}=";
+            string foundParameter = string.Empty;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i].StartsWith(searchParameter, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    return args[i].Substring(searchParameter.Length);
+                    foundParameter = args[i].Substring(searchParameter.Length);
                 }
             }
-            throw new Exception($"Unknown input parameter {parameterName}!");
+            if (string.IsNullOrEmpty(foundParameter) && !Enum.IsDefined(typeof(consoleParameters), parameterName))
+            {
+                throw new Exception($"Unknown input parameter {parameterName}!");
+            }
+            return foundParameter;
         }
 
         // testovací metoda - smazat
         public static void ListInputParameters(InputParameters inputParameters)
         {
-            Console.WriteLine($"SourceFolder = {inputParameters.SourceFolder}"); 
-            Console.WriteLine($"ReplicaFolder = {inputParameters.ReplicaFolder}");
+            Console.WriteLine($"SourceDirectory = {inputParameters.SourceDirectory}"); 
+            Console.WriteLine($"ReplicaDirectory = {inputParameters.ReplicaDirectory}");
             Console.WriteLine($"LogFile = {inputParameters.LogFile}");
             Console.WriteLine($"Interval = {inputParameters.Interval}");
             Console.WriteLine($"TimeUnit = {inputParameters.TimeUnit}");
@@ -51,8 +57,11 @@ namespace SyncMeAppLibrary
 
         }
 
-        public static bool ConfirmationDialog(string message)
+        public static bool ConfirmationDialog(string message, bool showDialog = true)
         {
+            if (!showDialog)
+                return true;
+
             Console.WriteLine(message);
             if (Console.ReadKey().Key == ConsoleKey.Y)
                 return true;

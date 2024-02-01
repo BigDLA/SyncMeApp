@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\TestFolders\TestSource\" />
-    <Folder Include="Utils\" />
+    <Directory Include="Resources\TestDirectorys\TestSource\" />
+    <Directory Include="Utils\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,10 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\TestFolders\TestSource\subfolder\testpicture.bmp">
+    <None Update="Resources\TestDirectorys\TestSource\subdirectory\testpicture.bmp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\TestFolders\TestSource\testtxt.txt">
+    <None Update="Resources\TestDirectorys\TestSource\testtxt.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
