@@ -99,7 +99,7 @@ namespace SyncMeAppLibrary.BL
 
                 if (filesToCopy.Any())
                 {
-
+                    CopyFiles(filesToCopy.ToArray(), inputParameters.ReplicaDirectory, log);
                 }
 
                 dirsToDelete = (from path in replicaRelativePaths select path).Except(sourceRelativePaths);
