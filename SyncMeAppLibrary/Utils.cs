@@ -68,5 +68,17 @@ namespace SyncMeAppLibrary
             
             return false;
         }
+
+        public static string[] RelativePaths(DirectoryInfo[] directories, string rootDirectory)
+        {
+            List<string> relativePaths = new List<string> { };
+            foreach (DirectoryInfo dir in directories)
+            {
+                if (!dir.FullName.Equals(rootDirectory, StringComparison.OrdinalIgnoreCase)) // Root directory will be skiped.
+                    relativePaths.Add(dir.FullName.Replace(rootDirectory, string.Empty));
+            }
+            return relativePaths.ToArray();
+        }
+
     }
 }
