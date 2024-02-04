@@ -22,17 +22,29 @@ namespace SyncMeApp
                     unit = inputParameters.TimeUnit;
 
                 log.Info($"Setting timer for {inputParameters.Interval} {unit}");
-                using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(Utils.ConvertToMiliseconds(inputParameters.Interval, unit)));
-                var msgTimer = $"Waiting for the timer set to {inputParameters.Interval} {unit}. To exit the application press 'Q'.";
-
-                log.Info(msgTimer);
-                while (await timer.WaitForNextTickAsync() && !(Console.ReadKey().Key == ConsoleKey.Q))
+                using (PeriodicTimer timer = new(TimeSpan.FromMilliseconds(Utils.ConvertToMiliseconds(inputParameters.Interval, unit))))
                 {
-                    log.Info("Timer has fired.");
-                    SyncLogic.ReplicateSourceDirectory(inputParameters, log);
+                    bool shouldExit = false;
+                    var msgTimer = $"Waiting for the timer set to {inputParameters.Interval} {unit}. To exit the application press 'Q'.";
+
                     log.Info(msgTimer);
+
+                    Thread newThread = new Thread(() =>
+                    {
+                        if (Console.ReadKey(true).Key == ConsoleKey.Q)
+                            shouldExit = true;
+                    });
+                    newThread.Start();
+
+                    while (await timer.WaitForNextTickAsync() && !shouldExit)
+                    {
+                        log.Info("Timer has fired.");
+                        SyncLogic.ReplicateSourceDirectory(inputParameters, log);
+                        log.Info(Logging.msgSyncSuccesfull);
+                        log.Info(msgTimer);
+                    }
+                    log.Info("Timer cancelled. Exitting the application");
                 }
-                log.Info("Timer cancelled. Exitting the application");
             }
             else
             {

@@ -89,18 +89,15 @@ namespace SyncMeAppLibrary
                     throw new Exception($"Time unit {unit} not recognized!");
             }
         }
-
-       /* public System.Timers.Timer SetTimer (int interval)
+       /* public static bool TryReadLine(out string line, int timeOutMillisecs = Timeout.Infinite)
         {
-            var timer = new System.Timers.Timer(interval);
-            timer.Elapsed += OnTimedEvent;
-            timer.AutoReset = true;
-            timer.Enabled = true;
+            getInput.Set();
+            bool success = gotInput.WaitOne(timeOutMillisecs);
+            if (success)
+                line = input;
+            else
+                line = null;
+            return success;
         }*/
-
-        private static void OnTimedEvent(InputParameters inputParameters, Logger log)
-        {
-            SyncLogic.ReplicateSourceDirectory(inputParameters, log);
-        }
     }
 }
