@@ -10,7 +10,7 @@ namespace SyncMeAppLibrary.Model
         public string SourceDirectory { get; set; }
         public string ReplicaDirectory { get; set; }
         public string LogFile { get; set; }
-        public long Interval { get; set; }
+        public double Interval { get; set; }
         public string? TimeUnit { get; set; }
         public bool Force { get; set; }
         public string FileLogLevel { get; set; }

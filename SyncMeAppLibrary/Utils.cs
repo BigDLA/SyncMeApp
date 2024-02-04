@@ -1,5 +1,7 @@
 ﻿using NLog;
+using SyncMeAppLibrary.BL;
 using SyncMeAppLibrary.Model;
+using System.Timers;
 using static SyncMeAppLibrary.Model.InputParameters;
 
 namespace SyncMeAppLibrary
@@ -22,17 +24,6 @@ namespace SyncMeAppLibrary
                 throw new Exception($"Unknown input parameter {parameterName}!");
             }
             return foundParameter;
-        }
-
-        // testovací metoda - smazat
-        public static void ListInputParameters(InputParameters inputParameters)
-        {
-            Console.WriteLine($"SourceDirectory = {inputParameters.SourceDirectory}"); 
-            Console.WriteLine($"ReplicaDirectory = {inputParameters.ReplicaDirectory}");
-            Console.WriteLine($"LogFile = {inputParameters.LogFile}");
-            Console.WriteLine($"Interval = {inputParameters.Interval}");
-            Console.WriteLine($"TimeUnit = {inputParameters.TimeUnit}");
-            Console.WriteLine($"Force = {inputParameters.Force}");
         }
 
         public static LogLevel ConvertStringToLogLevel(string logLevel)
@@ -65,7 +56,7 @@ namespace SyncMeAppLibrary
             Console.WriteLine(message);
             if (Console.ReadKey().Key == ConsoleKey.Y)
                 return true;
-            
+
             return false;
         }
 
@@ -80,5 +71,36 @@ namespace SyncMeAppLibrary
             return relativePaths.ToArray();
         }
 
+        public static double ConvertToMiliseconds(double value, string unit)
+        {
+            switch (unit.ToLower())
+            {
+                case "ms":
+                    return value;
+                case "s":
+                    return value * 1000;
+                case "min":
+                    return value * 60000;
+                case "h":
+                    return value * 3600000;
+                case "d":
+                    return value * 86400000;
+                default:
+                    throw new Exception($"Time unit {unit} not recognized!");
+            }
+        }
+
+       /* public System.Timers.Timer SetTimer (int interval)
+        {
+            var timer = new System.Timers.Timer(interval);
+            timer.Elapsed += OnTimedEvent;
+            timer.AutoReset = true;
+            timer.Enabled = true;
+        }*/
+
+        private static void OnTimedEvent(InputParameters inputParameters, Logger log)
+        {
+            SyncLogic.ReplicateSourceDirectory(inputParameters, log);
+        }
     }
 }

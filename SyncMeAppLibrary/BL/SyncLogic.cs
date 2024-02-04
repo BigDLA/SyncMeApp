@@ -1,15 +1,8 @@
 ﻿using NLog;
 using SyncMeAppLibrary.Model;
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 
 namespace SyncMeAppLibrary.BL
 {
-    //logger.Info("Message with {myProperty}", "myValue");
-
     public class SyncLogic
     {
         public static void ReplicateSourceDirectory(InputParameters inputParameters, Logger log)
@@ -18,82 +11,44 @@ namespace SyncMeAppLibrary.BL
             {
                 log.Info($"Starting to synchronize target directory {inputParameters.ReplicaDirectory} with source directory {inputParameters.SourceDirectory}.");
                 DirectoryInfo[] sourceDirWithSubdirectories = GetDirAndSubdirectories(inputParameters.SourceDirectory);
-                if (sourceDirWithSubdirectories.Length == 0)
+                if (!sourceDirWithSubdirectories[0].Exists || sourceDirWithSubdirectories.Length == 0) // Bude fungovat?
                     throw new Exception($"Source directory {inputParameters.SourceDirectory} not found!");
 
                 DirectoryInfo[] replicaDirWithSubdirectories = GetDirAndSubdirectories(inputParameters.ReplicaDirectory);
 
-                FileInfo[] sourceParentDirFiles = sourceDirWithSubdirectories[0].GetFiles("*", SearchOption.TopDirectoryOnly); //TO-DO: vytáhnout podmnožinu ze všech souborů pomocí linq nebo vlastnosti directory?
-                FileInfo[] replicaParentDirFiles = replicaDirWithSubdirectories[0].GetFiles("*", SearchOption.TopDirectoryOnly);
-
-                // TO-DO: refaktoring -> rozsekat do menších metod ať to není tak velká metoda
-
-                // Case when source directory is empty
-                if (sourceDirWithSubdirectories.Length == 1 && sourceParentDirFiles.Length == 0)
-                {
-                    log.Warn($"Source directory {inputParameters.SourceDirectory} is empty!");
-
-                    // replicaDirWithSubdirectories.Length > 1 means there are subfolders. If there are files or subfolders we need to delete them.
-                    if (replicaDirWithSubdirectories.Length > 1 || replicaParentDirFiles.Length > 0)
-                    {
-                        if (!Utils.ConfirmationDialog($"Target directory is not empty. Delete all files and directories in {inputParameters.ReplicaDirectory}? Y/N:", showDialog: inputParameters.AskDeleteConfirmation))
-                            throw new Exception(Logging.msgActionCanceledByUser);
-
-                        DeleteAllFilesAndFolders(replicaDirWithSubdirectories, log);
-                    }
-                    log.Info("Both directories are empty.");
-                    return;
-                }
-
-                // Case when replica directory is empty and source is not.
-                if (replicaDirWithSubdirectories.Length <= 1 && replicaParentDirFiles.Length == 0)
-                {
-                    log.Info($"Target directory {inputParameters.ReplicaDirectory} is empty. Proceeding to synchronize with directory {inputParameters.SourceDirectory}.");
-                    foreach (DirectoryInfo sourceDirectory in sourceDirWithSubdirectories)
-                    {
-                        ReplicateDirectory(sourceDirectory, inputParameters, log);
-                    }
-                }
-
-                // Case when both directories contain files
-                FileCompare myFileCompare = new FileCompare(inputParameters);
-
                 // Need to compare directories without parent (parent name may differ)
                 string[] sourceRelativePaths = Utils.RelativePaths(sourceDirWithSubdirectories, inputParameters.SourceDirectory);
                 string[] replicaRelativePaths = Utils.RelativePaths(replicaDirWithSubdirectories, inputParameters.ReplicaDirectory);
-                var subDirsAreSame = sourceRelativePaths.SequenceEqual(replicaRelativePaths);
+                //var subDirsAreSame = sourceRelativePaths.SequenceEqual(replicaRelativePaths);
 
-                IEnumerable<FileInfo> allSourceDirFiles = sourceDirWithSubdirectories[0].GetFiles("*", SearchOption.AllDirectories);
-                IEnumerable<FileInfo> allReplicaDirFiles = replicaDirWithSubdirectories[0].GetFiles("*", SearchOption.AllDirectories);
-                bool filesAreSame = allSourceDirFiles.SequenceEqual(allReplicaDirFiles, myFileCompare); // TO-DO: otestovat pro různý počet souborů apod.
+                FileItem[] allSourceDirFiles = FileItem.GetAllFiles(sourceDirWithSubdirectories[0]);
+                FileItem[] allReplicaDirFiles = FileItem.GetAllFiles(replicaDirWithSubdirectories[0]);
+                //bool filesAreSame = allSourceDirFiles.SequenceEqual(allReplicaDirFiles, myFileCompare); // TO-DO: otestovat pro různý počet souborů apod.
 
-                // If both directories and their files are same, no further action is needed.
-                if (filesAreSame && subDirsAreSame)
+                if (allReplicaDirFiles.Any())
                 {
-                    log.Info($"Folders {inputParameters.SourceDirectory} and {inputParameters.ReplicaDirectory} are same. No action is needed");
-                    return;
+                    log.Warn($"Target directory {inputParameters.ReplicaDirectory} contains files.");
+                    if (!Utils.ConfirmationDialog($"All files in target directory {inputParameters.ReplicaDirectory} that do not match files from source directory {inputParameters.SourceDirectory} will be overwritten or deleted. Proceed ? Y/N:", showDialog: inputParameters.AskDeleteConfirmation))
+                        throw new Exception(Logging.msgActionCanceledByUser);
                 }
-
-                log.Info($"Target directory {inputParameters.ReplicaDirectory} contains files.");
-                if (!Utils.ConfirmationDialog($"All files in target directory {inputParameters.ReplicaDirectory} that do not match files from source directory {inputParameters.SourceDirectory} will be deleted. Proceed ? Y/N:", showDialog: inputParameters.AskDeleteConfirmation))
-                    throw new Exception(Logging.msgActionCanceledByUser);
 
                 // Directories to be created or deleted in replica
                 IEnumerable<string> dirsToCreate = [];
                 IEnumerable<string> dirsToDelete = [];
                 // Files to be created or deleted
-                IEnumerable<FileInfo> filesToCopy = [];
-                IEnumerable<FileInfo> filesToDelete = [];
+                IEnumerable<FileItem> filesToCopy = [];
+                IEnumerable<FileItem> filesToDelete = [];
 
                 dirsToCreate = (from path in sourceRelativePaths select path).Except(replicaRelativePaths);
-                filesToCopy = (from file in allSourceDirFiles select file).Except(allReplicaDirFiles, myFileCompare);
+                filesToCopy = FileItem.FindDifferentFiles(allSourceDirFiles, allReplicaDirFiles);
+
 
                 // First create directories and copy files
                 if (dirsToCreate.Any())
                 {
                     foreach (string dir in dirsToCreate)
                     {
-                        CreateDirectory(Path.Combine(inputParameters.SourceDirectory, dir), log);
+                        CreateDirectory(Path.Combine(inputParameters.ReplicaDirectory, dir), log); //TO-DO: Je zajištěno pořadí podsložek?
                     }
                 }
 
@@ -102,8 +57,12 @@ namespace SyncMeAppLibrary.BL
                     CopyFiles(filesToCopy.ToArray(), inputParameters.ReplicaDirectory, log);
                 }
 
+                // Need to refresh replica directories and files to know, what we need to delete
+                replicaDirWithSubdirectories = GetDirAndSubdirectories(inputParameters.ReplicaDirectory);
+                allReplicaDirFiles = FileItem.GetAllFiles(replicaDirWithSubdirectories[0]);
+
                 dirsToDelete = (from path in replicaRelativePaths select path).Except(sourceRelativePaths);
-                filesToDelete = (from file in allReplicaDirFiles select file).Except(allSourceDirFiles, myFileCompare);
+                filesToDelete = FileItem.FindDifferentFiles(allReplicaDirFiles, allSourceDirFiles);
 
                 // Then delete files and directories that are not in source directory.
                 if (filesToDelete.Any())
@@ -111,44 +70,12 @@ namespace SyncMeAppLibrary.BL
 
                 if (dirsToDelete.Any())
                     DeleteDirectories(GetDirs(dirsToDelete.ToArray(), inputParameters.ReplicaDirectory), log);
-
             }
             catch (Exception ex)
             {
                 log.Error(ex);
                 throw;
             }
-        }
-
-        private static void DeleteAllFilesAndFolders(DirectoryInfo[] directories, Logger log)
-        {
-            // Iterating trough directories in reverse order to remove subdirectories first.
-            for (int i = directories.Length - 1; i >= 0; i--)
-            {
-                if (!directories[i].Exists)
-                    throw new DirectoryNotFoundException();
-
-                log.Info($"Deleting files in {directories[i].FullName}");
-                FileInfo[] files = directories[i].GetFiles("*", SearchOption.TopDirectoryOnly);
-                DeleteFiles(files, log);
-                log.Info($"Files deleted. Deleting directory {directories[i].FullName} itself.");
-
-                // Delete subdirectories
-                if (i > 0)
-                    Directory.Delete(directories[i].FullName);
-            }
-        }
-
-        private static void ReplicateDirectory(DirectoryInfo directory, InputParameters inputParameters, Logger log)
-        {
-            string targetDirectory = directory.FullName.Replace(inputParameters.SourceDirectory, inputParameters.ReplicaDirectory);
-            if (!Directory.Exists(targetDirectory))
-            {
-                CreateDirectory(targetDirectory, log);
-            }
-            FileInfo[] fileInfo = directory.GetFiles("*", SearchOption.TopDirectoryOnly);
-            CopyFiles(fileInfo, targetDirectory, log);
-
         }
 
         public static void CreateDirectory(string path, Logger log)
@@ -174,19 +101,28 @@ namespace SyncMeAppLibrary.BL
 
         private static DirectoryInfo[] GetDirAndSubdirectories(string directoryPath)
         {
-            var directories = new List<DirectoryInfo>() { new DirectoryInfo(directoryPath) };
-            foreach (DirectoryInfo subdirectoryInfo in directories[0].GetDirectories("*", SearchOption.AllDirectories))
+            var directories = new List<DirectoryInfo>() { };
+            var rootDir = new DirectoryInfo(directoryPath);
+            directories.Add(rootDir);
+            try
             {
-                directories.Add(subdirectoryInfo);
+                foreach (DirectoryInfo subdirectoryInfo in directories[0].GetDirectories("*", SearchOption.AllDirectories))
+                {
+                    directories.Add(subdirectoryInfo);
+                }
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return directories.ToArray();
             }
             return directories.ToArray();
         }
 
-        private static void CopyFiles(FileInfo[] files, string targetDirectory, Logger log)
+        private static void CopyFiles(FileItem[] files, string targetRootDirectory, Logger log)
         {
-            foreach (FileInfo file in files)
+            foreach (FileItem file in files)
             {
-                string targetFileFullName = Path.Combine(targetDirectory, file.Name);
+                string targetFileFullName = file.FullName.Replace(file.RootDirPath, targetRootDirectory);
                 if (File.Exists(targetFileFullName))
                     log.Warn($"File {targetFileFullName} already exists and will be overwritten");
 
@@ -211,9 +147,9 @@ namespace SyncMeAppLibrary.BL
             }
         }
 
-        private static void DeleteFiles(FileInfo[] files, Logger log)
+        private static void DeleteFiles(FileItem[] files, Logger log)
         {
-            foreach (FileInfo file in files)
+            foreach (FileItem file in files)
             {
                 if (Path.Exists(file.FullName))
                 {
