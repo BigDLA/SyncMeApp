@@ -1,7 +1,4 @@
 ﻿using NLog;
-using SyncMeAppLibrary.BL;
-using SyncMeAppLibrary.Model;
-using System.Timers;
 using static SyncMeAppLibrary.Model.InputParameters;
 
 namespace SyncMeAppLibrary
@@ -48,29 +45,6 @@ namespace SyncMeAppLibrary
 
         }
 
-        public static bool ConfirmationDialog(string message, bool showDialog = true)
-        {
-            if (!showDialog)
-                return true;
-
-            Console.WriteLine(message);
-            if (Console.ReadKey().Key == ConsoleKey.Y)
-                return true;
-
-            return false;
-        }
-
-        public static string[] RelativePaths(DirectoryInfo[] directories, string rootDirectory)
-        {
-            List<string> relativePaths = new List<string> { };
-            foreach (DirectoryInfo dir in directories)
-            {
-                if (!dir.FullName.Equals(rootDirectory, StringComparison.OrdinalIgnoreCase)) // Root directory will be skiped.
-                    relativePaths.Add(dir.FullName.Replace(rootDirectory, string.Empty));
-            }
-            return relativePaths.ToArray();
-        }
-
         public static double ConvertToMiliseconds(double value, string unit)
         {
             switch (unit.ToLower())
@@ -89,15 +63,5 @@ namespace SyncMeAppLibrary
                     throw new Exception($"Time unit {unit} not recognized!");
             }
         }
-       /* public static bool TryReadLine(out string line, int timeOutMillisecs = Timeout.Infinite)
-        {
-            getInput.Set();
-            bool success = gotInput.WaitOne(timeOutMillisecs);
-            if (success)
-                line = input;
-            else
-                line = null;
-            return success;
-        }*/
     }
 }

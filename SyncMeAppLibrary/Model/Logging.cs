@@ -20,9 +20,5 @@ namespace SyncMeAppLibrary.Model
             LogManager.Configuration = config;
             return LogManager.GetCurrentClassLogger();
         }
-
-        public const string msgSyncCheck = "Checking that directories are synchronized.";
-        public const string msgSyncSuccesfull = "Synchronization finished succesfully!";
-        public const string msgActionCanceledByUser = "Action canceld by user!";
     }
 }

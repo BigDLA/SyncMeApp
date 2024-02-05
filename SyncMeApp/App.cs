@@ -7,13 +7,14 @@ namespace SyncMeApp
 {
     public class App
     {
+        public const string msgSyncSuccesfull = "Synchronization finished succesfully!";
         public async void Run(string[] args)
         {
-            Debugger.Launch();
+            //Debugger.Launch();
             var inputParameters = new InputParameters(args);
             var log = Logging.ConfigureLogging(inputParameters); // Initialize and set logging configuration
             SyncLogic.ReplicateSourceDirectory(inputParameters, log);
-            log.Info(Logging.msgSyncSuccesfull);
+            log.Info(msgSyncSuccesfull);
 
             if (inputParameters.Interval > 0)
             {
@@ -40,7 +41,7 @@ namespace SyncMeApp
                     {
                         log.Info("Timer has fired.");
                         SyncLogic.ReplicateSourceDirectory(inputParameters, log);
-                        log.Info(Logging.msgSyncSuccesfull);
+                        log.Info(msgSyncSuccesfull);
                         log.Info(msgTimer);
                     }
                     log.Info("Timer cancelled. Exitting the application");

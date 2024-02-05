@@ -21,7 +21,6 @@ static IHostBuilder CreateHostBuilder(string[] args)
     return Host.CreateDefaultBuilder(args)
         .ConfigureServices((_, services) =>
         {
-            //services.AddSingleton<IMessages, Messages>();
             services.AddSingleton<App>(); //otestovat, že když spustím 2 aplikace vedle sebe, tak to pojede
         });
 }

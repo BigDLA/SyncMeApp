@@ -1,7 +1,4 @@
-﻿using NLog;
-using System.Runtime.CompilerServices;
-
-namespace SyncMeAppLibrary.Model
+﻿namespace SyncMeAppLibrary.Model
 {
     public class InputParameters
     {
@@ -15,7 +12,6 @@ namespace SyncMeAppLibrary.Model
         public bool Force { get; set; }
         public string FileLogLevel { get; set; }
         public string ConsoleLogLevel { get; set; }
-        public bool AskDeleteConfirmation { get; set; }
 
 
         public InputParameters(string[] args)
@@ -52,13 +48,6 @@ namespace SyncMeAppLibrary.Model
             if (!string.IsNullOrEmpty(consoleLogLevel))
             {
                 ConsoleLogLevel = consoleLogLevel;
-            }
-
-            AskDeleteConfirmation = true;
-            string askDeleteConfirmation = Utils.GetSubstring(args, consoleParameters.askdeleteconfirmation.ToString());
-            if (!string.IsNullOrEmpty(askDeleteConfirmation))
-            {
-                AskDeleteConfirmation = bool.Parse(askDeleteConfirmation);
             }
         }
 

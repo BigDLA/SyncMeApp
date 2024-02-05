@@ -1,27 +1,13 @@
-﻿
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace SyncMeAppLibrary.Model
 {
-    public class FileItem(FileInfo file, string rootPath) : IEquatable<FileItem?>
+    public class FileItem(FileInfo file, string rootPath) : IEquatable<FileItem?>, IFileItem
     {
-        public FileInfo FileInfo { get; set; } = file;
-        public string Name { get; set; } = file.Name;
         public string FullName { get; set; } = file.FullName;
-        public DirectoryInfo? Directory { get; set; } = file.Directory;
         public string RootDirPath { get; set; } = rootPath;
         public string RelativePath { get; set; } = file.FullName.Replace(rootPath, string.Empty);
 
-        public static IEnumerable<FileItem> GetDirFiles(DirectoryInfo directory)
-        {
-            FileInfo[] filesInfo = directory.GetFiles("*", SearchOption.TopDirectoryOnly);
-            List<FileItem> fileItems = [];
-            foreach (FileInfo fileInfo in filesInfo)
-            {
-                fileItems.Add(new FileItem(fileInfo, directory.FullName));
-            }
-            return fileItems.AsEnumerable();
-        }
 
         public static FileItem[] GetAllFiles(DirectoryInfo directory)
         {
@@ -32,17 +18,6 @@ namespace SyncMeAppLibrary.Model
                 fileItems.Add(new FileItem(fileInfo, directory.FullName));
             }
             return fileItems.ToArray();
-        }
-
-        public static FileItem[] FindDifferentFiles(FileItem[] files, FileItem[] filesToCompareTo)
-        {
-            List<FileItem> diffFiles = [];
-            foreach (FileItem file in files) 
-            {
-                if (!filesToCompareTo.Contains(file))
-                    diffFiles.Add(file);
-            }
-            return diffFiles.ToArray();
         }
 
         public override bool Equals(object? obj)

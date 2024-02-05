@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.0.4" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
   </ItemGroup>
 
@@ -24,15 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SyncMeAppLibrary\SyncMeAppLibrary.csproj" />
     <ProjectReference Include="..\SyncMeApp\SyncMeApp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Resources\TestDirectorys\TestSource\subdirectory\testpicture.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\TestDirectorys\TestSource\testtxt.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
