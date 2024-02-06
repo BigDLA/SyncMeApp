@@ -2,6 +2,7 @@
 SyncMeApp is an application for one-way synchronization of two folders. The application will turn the target folder into an exact copy of the source folder (recursively). Synchronization can be done repeatedly using the application timer.
 
 ## Usage
+Run application via \SyncMeApp\bin\Debug\net8.0\SyncMeApp.exe
 Enter parameters in the format parameter1=value parameter2=value ... (parameters are split by spaces, no spaces around '=' sign or '-' sign ahead of the parameter).
 * Required parameters:
 - **sourcedirectory** --> Path to the source folder ( Wrap the path in doublequotes "". If path ends with backslash, it needs to be escaped -> "\\")
