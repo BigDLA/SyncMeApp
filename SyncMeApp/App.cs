@@ -1,16 +1,19 @@
 ﻿using SyncMeAppLibrary;
 using SyncMeAppLibrary.BL;
 using SyncMeAppLibrary.Model;
-using System.Diagnostics;
 
 namespace SyncMeApp
 {
     public class App
     {
         public const string msgSyncSuccesfull = "Synchronization finished succesfully!";
+
+        /// <summary>
+        ///  The main Run method.
+        /// </summary>
+        /// <param name="args">input parameters</param>
         public async void Run(string[] args)
         {
-            //Debugger.Launch();
             var inputParameters = new InputParameters(args);
             var log = Logging.ConfigureLogging(inputParameters); // Initialize and set logging configuration
             SyncLogic.ReplicateSourceDirectory(inputParameters, log);

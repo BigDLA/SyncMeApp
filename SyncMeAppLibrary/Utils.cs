@@ -5,6 +5,13 @@ namespace SyncMeAppLibrary
 {
     public class Utils
     {
+        /// <summary>
+        /// If parameter is found, returns its value (given by 'parameter=''value'). 
+        /// </summary>
+        /// <param name="args">Array of parameters</param>
+        /// <param name="parameterName">Parameter name including '=' sign</param>
+        /// <returns>Parameter value</returns>
+        /// <exception cref="Exception"></exception>
         public static string GetSubstring(string[] args, string parameterName)
         {
             var searchParameter = $"{parameterName}=";
@@ -23,21 +30,27 @@ namespace SyncMeAppLibrary
             return foundParameter;
         }
 
+        /// <summary>
+        /// Converts string value of parameter to LogLevel property.
+        /// </summary>
+        /// <param name="logLevel">String value of log level</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static LogLevel ConvertStringToLogLevel(string logLevel)
         {
-            switch (logLevel)
+            switch (logLevel.ToLower())
             {
-                case "Debug":
+                case "debug":
                     return LogLevel.Debug;
-                case "Info":
+                case "info":
                     return LogLevel.Info;
-                case "Warn":
+                case "warn":
                     return LogLevel.Warn;
-                case "Error":
+                case "error":
                     return LogLevel.Error;
-                case "Fatal":
+                case "fatal":
                     return LogLevel.Fatal;
-                case "Off":
+                case "off":
                     return LogLevel.Off;
                 default:
                     throw new Exception($"Unknown LogLevel parameter {logLevel}!");
@@ -45,6 +58,13 @@ namespace SyncMeAppLibrary
 
         }
 
+        /// <summary>
+        /// Converts value to ms based on input time unit.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="unit"></param>
+        /// <returns>number of miliseconds</returns>
+        /// <exception cref="Exception"></exception>
         public static double ConvertToMiliseconds(double value, string unit)
         {
             switch (unit.ToLower())

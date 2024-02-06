@@ -4,6 +4,11 @@ namespace SyncMeAppLibrary.Model
 {
     public class Logging
     {
+        /// <summary>
+        /// Configures logging based on input parameters.
+        /// </summary>
+        /// <param name="inputParameters">Input parameters</param>
+        /// <returns></returns>
         public static Logger ConfigureLogging(InputParameters inputParameters)
         {
             var config = new NLog.Config.LoggingConfiguration();

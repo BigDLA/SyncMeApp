@@ -8,7 +8,11 @@ namespace SyncMeAppLibrary.Model
         public string RootDirPath { get; set; } = rootPath;
         public string RelativePath { get; set; } = file.FullName.Replace(rootPath, string.Empty);
 
-
+        /// <summary>
+        /// Returns all files of the directory including subdirectories. 
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
         public static FileItem[] GetAllFiles(DirectoryInfo directory)
         {
             FileInfo[] filesInfo = directory.GetFiles("*", SearchOption.AllDirectories);
@@ -25,6 +29,11 @@ namespace SyncMeAppLibrary.Model
             return Equals(obj as FileItem);
         }
 
+        /// <summary>
+        /// Compare MD5 hash of file content and relative path to its root directory.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public bool Equals(FileItem? file)
         {
             if (file == null)
@@ -41,6 +50,11 @@ namespace SyncMeAppLibrary.Model
             return HashCode.Combine(RelativePath, hash);
         }
 
+        /// <summary>
+        /// Reads a file and returns MD5 hash of its content.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private static byte[] GetMD5Hash(string path)
         {
             using (var md5 = MD5.Create())
